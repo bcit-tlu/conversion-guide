@@ -3,4 +3,4 @@ name: conversion-guide
 description: Conversion Guide — online reference for developing, producing, and maintaining online courses at BCIT
 type: application
 version: 0.1.0
-appVersion: "1.0.0" # x-release-please-version
+appVersion: "1.1.0" # x-release-please-version
