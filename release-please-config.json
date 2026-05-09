@@ -6,7 +6,6 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "component": "conversion-guide",
       "extra-files": [
         { "type": "generic", "path": "charts/Chart.yaml" }
       ]
