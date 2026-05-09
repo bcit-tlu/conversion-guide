@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.1.6](https://github.com/bcit-tlu/conversion-guide/compare/v1.1.5...v1.1.6) (2026-05-09)
+
+
+### Bug Fixes
+
+* Add plausible for stable ([4093938](https://github.com/bcit-tlu/conversion-guide/commit/4093938c482c115b7dfe9795ccf27970bb1ce769))
+* remove component field to fix release-please finalization ([0386655](https://github.com/bcit-tlu/conversion-guide/commit/03866554f3dedce6116d452c3ceb7dbf491aea95))
+* remove component field to fix release-please finalization ([b122820](https://github.com/bcit-tlu/conversion-guide/commit/b122820be91647aac1bb039f3bb59b6f55f43d24))
+* remove dead package-lock.json extra-files entries ([e9a0dd6](https://github.com/bcit-tlu/conversion-guide/commit/e9a0dd6d9cebd2644cd926dd0920c631038bde50))
+* switch release-please strategy from simple to node ([3c110f4](https://github.com/bcit-tlu/conversion-guide/commit/3c110f428145bc5c60a2a9000664e7a3e668c0e4))
+* switch release-type from node to simple to fix component auto-derive ([27b7422](https://github.com/bcit-tlu/conversion-guide/commit/27b74221a5d873bc798634f2dadb7102b0b95a9b))
+* switch release-type from node to simple to fix component auto-derive ([6f14d70](https://github.com/bcit-tlu/conversion-guide/commit/6f14d70087f358add49c80c308fd6cabeac254c5))
+* use npm install (no package-lock.json in repo) ([23e3bab](https://github.com/bcit-tlu/conversion-guide/commit/23e3babbe60b3dff5c5db323de362699b7daed4d))
+
+
+### Performance Improvements
+
+* enable on-the-fly gzip compression for text assets ([c16bfea](https://github.com/bcit-tlu/conversion-guide/commit/c16bfeaeca763837504e4c037e5b125781d2b9d0))
+
 ## [1.1.5](https://github.com/bcit-tlu/conversion-guide/compare/v1.1.4...v1.1.5) (2026-05-09)
 
 
