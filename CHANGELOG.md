@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.8](https://github.com/bcit-tlu/conversion-guide/compare/v1.1.7...v1.1.8) (2026-05-15)
+
+
+### Bug Fixes
+
+* use correct release-please output key for root package dispatch ([343df53](https://github.com/bcit-tlu/conversion-guide/commit/343df532f7e5b8bde9cb07ab453219fb59cfd23c))
+
 ## [1.1.7](https://github.com/bcit-tlu/conversion-guide/compare/v1.1.6...v1.1.7) (2026-05-09)
 
 
