@@ -17,7 +17,7 @@ env:
 permissions:
   contents: read
   packages: write
-  id-token: write          # Cosign keyless (Sigstore OIDC)
+  id-token: write
 
 jobs:
   retag:
@@ -49,8 +49,7 @@ jobs:
         env:
           VERSION: ${{ steps.parse.outputs.version }}
         run: |
-          # List all stable (non-prerelease) tags, strip prefix, sort by
-          # semver, take the highest.
+          # Highest stable (non-prerelease) semver tag.
           HIGHEST=$(git tag -l "v[0-9]*.[0-9]*.[0-9]*" \
             | sed "s/^v//" \
             | grep -v -- '-' \
@@ -127,12 +126,12 @@ jobs:
             "${TAGS[@]}" \
             "${IMAGE}:sha-${SHA}"
 
-          # Capture digest for Cosign signing.
+          # Capture digest for signing.
           DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}" --format '{{.Manifest.Digest}}')
           echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
 
-      # ── Sign with Cosign (keyless / Sigstore) ──────────────
+      # Sign with Cosign
       - uses: sigstore/cosign-installer@v3
         if: steps.parse.outputs.match == 'true'
 
