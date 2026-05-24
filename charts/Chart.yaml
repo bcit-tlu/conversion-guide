@@ -2,5 +2,5 @@ apiVersion: v2
 name: conversion-guide
 description: Conversion Guide — online reference for developing, producing, and maintaining online courses at BCIT
 type: application
-version: 0.1.0
+version: 0.1.0 # x-release-please-version
 appVersion: "1.1.8" # x-release-please-version
