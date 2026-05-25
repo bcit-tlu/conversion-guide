@@ -5,33 +5,51 @@
 - Install dependencies: `npm install`
 - Build (gulp): `npm run build`
 - Dev server (browser-sync): `npm run watch`
-- Lint chart: `helm lint charts/`
-- Validate chart: `helm template test charts/ | kubeconform -strict -summary -schema-location default -ignore-missing-schemas`
+- Helm lint: `helm lint charts/`
+- Helm validate: `helm template test charts/ | kubeconform -strict -summary -schema-location default -ignore-missing-schemas`
 
 ## Code Style
 
-- Follow conventional commit format for PR titles and commits
+- Follow conventional commit format for PR titles
 - License: MPL-2.0
 
 ## Project Structure
 
-- `charts/` - Helm chart for Kubernetes deployment
-- `conf.d/` - Nginx server configuration and routing logic
-- `js/` - Frontend logic for UI transformations and analytics
-- `pages/` - Source HTML documentation and interactive guides
-- `partials/` - Reusable HTML components and interaction templates
-- `scss/` - Styling for Word simulations and course elements
-- `gulpfile.mjs` - Asset compilation and build pipeline (Gulp)
-- `assets/` - Templates, design sources, and static media
+- `/charts` — Helm chart for Kubernetes deployment (flat layout)
+- `/conf.d` — Nginx server configuration and routing logic
+- `/js` — Frontend logic for UI transformations and analytics
+- `/pages` — Source HTML documentation and interactive guides
+- `/partials` — Reusable HTML components and interaction templates
+- `/scss` — Styling for Word simulations and course elements
+- `/assets` — Templates, design sources, and static media
+- `/gulpfile.mjs` — Asset compilation and build pipeline (Gulp)
+- `/.github/workflows/` — CI/CD pipelines
+
+## Architecture
+
+- **Runtime**: Nginx-unprivileged on port 8080 (static site served by nginx)
+- **Build**: Gulp pipeline compiles SCSS, assembles HTML partials, and outputs to `dist/`
+- **Analytics**: Plausible integration for privacy-focused usage tracking
+- **Health endpoint**: Nginx responds to probe requests on `/`
+
+## Development Workflow
+
+- Create feature branches from `main`
+- Use pull requests for code review
+- PR titles must follow conventional commit format (enforced by `pr-title-lint.yaml`)
+- Squash commits before merging
 
 ## CI/CD
 
-- **Versioning**: release-please with `simple` release type
-- **Images & Charts**: GHCR via shared `bcit-tlu/.github` `oci-build.yaml` reusable workflow
-- **PR title lint**: Conventional Commits enforced by `pr-title-lint.yaml`
-- **Helm**: chart linted and kubeconform-validated on every push/PR
+- CI uses shared `bcit-tlu/.github` OCI build reusable workflow
+- `helm-lint` validates Helm charts on every push and PR
+- `release-please` manages versioning via conventional commits (`release-type: "simple"`)
+- Version is tracked in `.release-please-manifest.json` and `Chart.yaml` (`# x-release-please-version` annotations)
+- Images are published to `ghcr.io/bcit-tlu/conversion-guide/conversion-guide`
+- Charts are published to `oci://ghcr.io/bcit-tlu/conversion-guide/charts`
+- `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true` is set in all workflows
 
 ## Deployment
 
-- Flux CD reconciles Helm releases from GHCR OCI artifacts
-- Hosts: `conversion-guide.<CLUSTER_ENV>.ltc.bcit.ca`
+- Deployed to Kubernetes via Flux CD (see `bcit-tlu/flux-fleet`)
+- Ingress: `conversion-guide.<CLUSTER_ENV>.ltc.bcit.ca`

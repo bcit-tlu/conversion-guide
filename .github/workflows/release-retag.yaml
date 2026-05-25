@@ -29,10 +29,10 @@ jobs:
           TAG: ${{ inputs.tag_name || github.event.release.tag_name }}
         run: |
           if [[ "$TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            echo "version=${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
-            echo "match=true" >> $GITHUB_OUTPUT
+            echo "version=${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}" >> "$GITHUB_OUTPUT"
+            echo "match=true" >> "$GITHUB_OUTPUT"
           else
-            echo "match=false" >> $GITHUB_OUTPUT
+            echo "match=false" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/checkout@v6
@@ -71,7 +71,7 @@ jobs:
           TAG: ${{ inputs.tag_name || github.event.release.tag_name }}
         run: |
           SHA=$(git rev-list -n1 "${TAG}")
-          echo "sha=${SHA}" >> $GITHUB_OUTPUT
+          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v4
         if: steps.parse.outputs.match == 'true'
@@ -117,13 +117,13 @@ jobs:
           VERSION: ${{ steps.parse.outputs.version }}
           IS_HIGHEST: ${{ steps.highest.outputs.is_highest }}
         run: |
-          TAGS=( -t "${IMAGE}:${VERSION}" )
+          TAG_ARGS=( -t "${IMAGE}:${VERSION}" )
           if [[ "${IS_HIGHEST}" == "true" ]]; then
-            TAGS+=( -t "${IMAGE}:latest" )
+            TAG_ARGS+=( -t "${IMAGE}:latest" )
           fi
 
           docker buildx imagetools create \
-            "${TAGS[@]}" \
+            "${TAG_ARGS[@]}" \
             "${IMAGE}:sha-${SHA}"
 
           # Capture digest for signing.
