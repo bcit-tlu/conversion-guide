@@ -57,6 +57,15 @@
 		$(this).toggleClass("open");
 		var target = $(this).data("target");
 		$(this).parents("section").find(target).trigger("button-pressed");
+		if (window.otelAnalytics && typeof window.otelAnalytics.trackEvent === "function") {
+			var viewMode = (target || "").replace(/^\./, "");
+			var elementIndex = $(this).parents("section").index();
+			window.otelAnalytics.trackEvent("view_toggle", {
+				page_type: (window.location.pathname || "").split("/").filter(Boolean).pop() || "home",
+				view_mode: viewMode,
+				element_index: String(elementIndex)
+			});
+		}
 	});
 
 
@@ -115,7 +124,7 @@
 		var newUrl = window.location.pathname + window.location.search + "#" + sectionId;
 		window.history.replaceState(null, "", newUrl);
 		if (sectionId !== lastTrackedSection) {
-			trackPlausible("content_section", {
+			trackEvent("content_section", {
 				page_type: pageType,
 				content_section: sectionId
 			});
@@ -292,7 +301,7 @@
 		}
 	});
 
-	// Plausible tracking for custom properties
+	// Analytics tracking
 	var pageType = getPageType();
 	var lastTrackedSection = null;
 
@@ -307,11 +316,10 @@
 		return name;
 	}
 
-	function trackPlausible(eventName, props) {
-		if (typeof window.plausible !== "function") {
-			return;
+	function trackEvent(eventName, attrs) {
+		if (window.otelAnalytics && typeof window.otelAnalytics.trackEvent === "function") {
+			window.otelAnalytics.trackEvent(eventName, attrs || {});
 		}
-		window.plausible(eventName, { props: props || {} });
 	}
 
 	function getContentSectionFromHref(href) {
@@ -397,14 +405,14 @@
 		if (section) {
 			props.content_section = section;
 		}
-		trackPlausible("nav_click", props);
+		trackEvent("nav_click", props);
 	});
 
 	$(document).on("click", "a[href]", function () {
 		var href = $(this).attr("href") || "";
 		var section = getContentSectionFromHref(href);
 		if (section) {
-			trackPlausible("content_section", {
+			trackEvent("content_section", {
 				page_type: pageType,
 				content_section: section
 			});
@@ -412,7 +420,7 @@
 
 		var assetInfo = getAssetInfo(href);
 		if (assetInfo) {
-			trackPlausible("asset_download", {
+			trackEvent("asset_download", {
 				page_type: pageType,
 				asset_type: assetInfo.type,
 				asset_name: assetInfo.name
@@ -421,7 +429,7 @@
 
 		var external = getExternalLinkValue(href);
 		if (external) {
-			trackPlausible("external_click", {
+			trackEvent("external_click", {
 				page_type: pageType,
 				external_link: external
 			});
