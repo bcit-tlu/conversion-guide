@@ -57,15 +57,13 @@
 		$(this).toggleClass("open");
 		var target = $(this).data("target");
 		$(this).parents("section").find(target).trigger("button-pressed");
-		if (window.otelAnalytics && typeof window.otelAnalytics.trackEvent === "function") {
-			var viewMode = (target || "").replace(/^\./, "");
-			var elementIndex = $(this).parents("section").index();
-			window.otelAnalytics.trackEvent("view_toggle", {
-				page_type: (window.location.pathname || "").split("/").filter(Boolean).pop() || "home",
-				view_mode: viewMode,
-				element_index: String(elementIndex)
-			});
-		}
+		var viewMode = (target || "").replace(/^\./, "");
+		var elementIndex = $(this).parents("section").index();
+		trackEvent("view_toggle", {
+			page_type: pageType,
+			view_mode: viewMode,
+			element_index: String(elementIndex)
+		});
 	});
 
 
@@ -302,19 +300,19 @@
 	});
 
 	// Analytics tracking
-	var pageType = getPageType();
+	var pageType = (window.otelAnalytics && typeof window.otelAnalytics.getPageType === "function")
+		? window.otelAnalytics.getPageType()
+		: (function () {
+			var path = window.location.pathname || "";
+			var trimmed = path.replace(/\/+$/, "");
+			var last = trimmed.split("/").filter(Boolean).pop() || "";
+			var name = last.replace(/\.html$/, "");
+			if (!name || name === "index") {
+				return "home";
+			}
+			return name;
+		}());
 	var lastTrackedSection = null;
-
-	function getPageType() {
-		var path = window.location.pathname || "";
-		var trimmed = path.replace(/\/+$/, "");
-		var last = trimmed.split("/").filter(Boolean).pop() || "";
-		var name = last.replace(/\.html$/, "");
-		if (!name || name === "index") {
-			return "home";
-		}
-		return name;
-	}
 
 	function trackEvent(eventName, attrs) {
 		if (window.otelAnalytics && typeof window.otelAnalytics.trackEvent === "function") {
@@ -410,12 +408,17 @@
 
 	$(document).on("click", "a[href]", function () {
 		var href = $(this).attr("href") || "";
+		var isNav = $(this).closest(".menu, .nav-bar").length > 0;
+
 		var section = getContentSectionFromHref(href);
 		if (section) {
-			trackEvent("content_section", {
-				page_type: pageType,
-				content_section: section
-			});
+			lastTrackedSection = section;
+			if (!isNav) {
+				trackEvent("content_section", {
+					page_type: pageType,
+					content_section: section
+				});
+			}
 		}
 
 		var assetInfo = getAssetInfo(href);

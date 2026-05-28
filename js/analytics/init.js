@@ -29,8 +29,7 @@ function getSessionId() {
 function isProduction() {
   return (
     typeof window !== 'undefined' &&
-    window.location.hostname !== 'localhost' &&
-    window.location.hostname !== '127.0.0.1'
+    window.location.hostname.endsWith('.ltc.bcit.ca')
   );
 }
 
@@ -44,6 +43,8 @@ function getPageType() {
   }
   return name;
 }
+
+var _loggerProvider = null;
 
 function init() {
   var prod = isProduction();
@@ -61,12 +62,12 @@ function init() {
     ? new BatchLogRecordProcessor(logExporter)
     : new SimpleLogRecordProcessor(logExporter);
 
-  var loggerProvider = new LoggerProvider({
+  _loggerProvider = new LoggerProvider({
     resource,
     processors: [processor],
   });
 
-  logs.setGlobalLoggerProvider(loggerProvider);
+  logs.setGlobalLoggerProvider(_loggerProvider);
 
   registerInstrumentations({
     instrumentations: [
@@ -103,7 +104,7 @@ function init() {
   });
 
   // Session heartbeat every 60s
-  setInterval(function () {
+  var heartbeatInterval = setInterval(function () {
     if (!document.hidden) {
       logEvent('session_heartbeat', {
         'duration_seconds': String(Math.round((Date.now() - startTime) / 1000)),
@@ -111,6 +112,20 @@ function init() {
       });
     }
   }, 60000);
+
+  // Flush pending logs and emit session_end on tab close / navigate away
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') {
+      clearInterval(heartbeatInterval);
+      logEvent('session_end', {
+        'duration_seconds': String(Math.round((Date.now() - startTime) / 1000)),
+        ...commonAttributes,
+      });
+      if (_loggerProvider) {
+        _loggerProvider.forceFlush();
+      }
+    }
+  });
 }
 
 function logEvent(eventName, attributes) {
@@ -147,4 +162,5 @@ init();
 window.otelAnalytics = {
   logEvent: logEvent,
   trackEvent: trackEvent,
+  getPageType: getPageType,
 };

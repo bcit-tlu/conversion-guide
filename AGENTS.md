@@ -29,7 +29,7 @@
 
 - **Runtime**: Nginx-unprivileged on port 8080 (static site served by nginx)
 - **Build**: Gulp pipeline compiles SCSS, assembles HTML partials, and outputs to `dist/`
-- **Analytics**: Plausible integration for privacy-focused usage tracking
+- **Analytics**: OpenTelemetry browser instrumentation for usage analytics (logs exported via OTLP to Loki/Grafana)
 - **Health endpoint**: Nginx responds to probe requests on `/`
 
 ## Development Workflow
