@@ -12,7 +12,7 @@ RUN npm run build
 
 
 # Release/production
-FROM nginxinc/nginx-unprivileged:alpine3.22-perl
+FROM nginxinc/nginx-unprivileged:alpine3.22-perl AS release
 
 LABEL maintainer=courseproduction@bcit.ca
 LABEL org.opencontainers.image.source="https://github.com/bcit-tlu/conversion-guide"
