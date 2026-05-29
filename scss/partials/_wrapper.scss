@@ -11,6 +11,12 @@ body {
 	overflow-x: hidden;
 }
 
+// Offset the instant jump so the heading isn't hidden under the
+// fixed nav bar (replaces the old animate `-50` offset).
+.wrapper > section[id] {
+	scroll-margin-top: 60px;
+}
+
 .wrapper>header {
 	text-align: center;
 	//	padding-top: $header-padding-top;

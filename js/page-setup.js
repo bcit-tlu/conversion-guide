@@ -57,22 +57,13 @@
 		$(this).toggleClass("open");
 		var target = $(this).data("target");
 		$(this).parents("section").find(target).trigger("button-pressed");
-	});
-
-
-	// Scrolling event handler
-	$(window).on("scrollTo", function (e, id) {
-		$("html,body").stop().animate({
-			scrollTop: getOffset(id) - 50
-		}, 300);
-
-		function getOffset(id) {
-			var $target = $("[id='" + id + "']");
-			if ($target.length === 1) {
-				return $target.offset().top - 10;
-			}
-			return 0;
-		}
+		var viewMode = (target || "").replace(/^\./, "");
+		var elementIndex = $(this).parents("section").index();
+		trackEvent("view_toggle", {
+			page_type: pageType,
+			view_mode: viewMode,
+			element_index: String(elementIndex)
+		});
 	});
 
 
@@ -115,7 +106,7 @@
 		var newUrl = window.location.pathname + window.location.search + "#" + sectionId;
 		window.history.replaceState(null, "", newUrl);
 		if (sectionId !== lastTrackedSection) {
-			trackPlausible("content_section", {
+			trackEvent("content_section", {
 				page_type: pageType,
 				content_section: sectionId
 			});
@@ -253,17 +244,6 @@
 			}
 		});
 
-		// Trigger scrolling
-		$("a[href*='#']").on("click", function () {
-			var href = $(this).attr("href");
-			var pathname = href.split("#").shift();
-			var id = href.split("#").pop();
-
-			if (window.location.pathname.indexOf(pathname) !== -1) {
-				$(window).trigger("scrollTo", id);
-			}
-		});
-
 		$menu.trigger("adjust-size");
 	}
 
@@ -292,26 +272,25 @@
 		}
 	});
 
-	// Plausible tracking for custom properties
-	var pageType = getPageType();
+	// Analytics tracking
+	var pageType = (window.otelAnalytics && typeof window.otelAnalytics.getPageType === "function")
+		? window.otelAnalytics.getPageType()
+		: (function () {
+			var path = window.location.pathname || "";
+			var trimmed = path.replace(/\/+$/, "");
+			var last = trimmed.split("/").filter(Boolean).pop() || "";
+			var name = last.replace(/\.html$/, "");
+			if (!name || name === "index") {
+				return "home";
+			}
+			return name;
+		}());
 	var lastTrackedSection = null;
 
-	function getPageType() {
-		var path = window.location.pathname || "";
-		var trimmed = path.replace(/\/+$/, "");
-		var last = trimmed.split("/").filter(Boolean).pop() || "";
-		var name = last.replace(/\.html$/, "");
-		if (!name || name === "index") {
-			return "home";
+	function trackEvent(eventName, attrs) {
+		if (window.otelAnalytics && typeof window.otelAnalytics.trackEvent === "function") {
+			window.otelAnalytics.trackEvent(eventName, attrs || {});
 		}
-		return name;
-	}
-
-	function trackPlausible(eventName, props) {
-		if (typeof window.plausible !== "function") {
-			return;
-		}
-		window.plausible(eventName, { props: props || {} });
 	}
 
 	function getContentSectionFromHref(href) {
@@ -323,6 +302,36 @@
 			return null;
 		}
 		return decodeURIComponent(hash);
+	}
+
+	// Highlight the header (or first heading) of the section the user
+	// jumped to with a brief blue background tint.
+	function highlightSection(sectionId) {
+		if (!sectionId) {
+			return;
+		}
+		var section = document.getElementById(sectionId);
+		if (!section) {
+			return;
+		}
+		var target = section.querySelector("header") ||
+			section.querySelector("h1, h2, h3, h4, h5, h6");
+		if (!target) {
+			return;
+		}
+		target.animate(
+			[
+				{ backgroundColor: 'rgba(0, 163, 224, 0.20)' },
+				{ backgroundColor: 'transparent' }
+			],
+			{ duration: 2000, easing: 'ease-out' }
+		);
+	}
+
+	// Cross-page nav links trigger a full page load, so highlight the
+	// landed section on startup.
+	if (window.location.hash) {
+		highlightSection(decodeURIComponent(window.location.hash.slice(1)));
 	}
 
 	function getAssetInfo(href) {
@@ -397,22 +406,45 @@
 		if (section) {
 			props.content_section = section;
 		}
-		trackPlausible("nav_click", props);
+		trackEvent("nav_click", props);
+
+		// Highlight the landed section on same-page jumps only.
+		var linkPath = href.split("#").shift();
+		var currentPath = window.location.pathname;
+		if (linkPath === "/") {
+			linkPath = currentPath;
+		}
+		if (section && linkPath === currentPath) {
+			highlightSection(section);
+		}
+
+		// On mobile the menu overlays the content, so close it after a
+		// nav tap to reveal the section the user just jumped to.
+		if ($(window).width() < 1100) {
+			$(".menu").trigger("close");
+			$(".menu-overlay").css({ "visibility": "hidden", "opacity": "0" });
+		}
 	});
 
 	$(document).on("click", "a[href]", function () {
 		var href = $(this).attr("href") || "";
+		var isNav = $(this).closest(".menu, .nav-bar").length > 0;
+
 		var section = getContentSectionFromHref(href);
 		if (section) {
-			trackPlausible("content_section", {
-				page_type: pageType,
-				content_section: section
-			});
+			lastTrackedSection = section;
+			if (!isNav) {
+				trackEvent("content_section", {
+					page_type: pageType,
+					content_section: section
+				});
+				highlightSection(section);
+			}
 		}
 
 		var assetInfo = getAssetInfo(href);
 		if (assetInfo) {
-			trackPlausible("asset_download", {
+			trackEvent("asset_download", {
 				page_type: pageType,
 				asset_type: assetInfo.type,
 				asset_name: assetInfo.name
@@ -421,7 +453,7 @@
 
 		var external = getExternalLinkValue(href);
 		if (external) {
-			trackPlausible("external_click", {
+			trackEvent("external_click", {
 				page_type: pageType,
 				external_link: external
 			});

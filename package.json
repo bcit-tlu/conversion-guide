@@ -15,6 +15,13 @@
     "build": "gulp build"
   },
   "dependencies": {
+    "@opentelemetry/api-logs": "^0.218.0",
+    "@opentelemetry/browser-instrumentation": "^0.5.2",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.218.0",
+    "@opentelemetry/instrumentation": "^0.218.0",
+    "@opentelemetry/resources": "^2.7.1",
+    "@opentelemetry/sdk-logs": "^0.218.0",
+    "@opentelemetry/semantic-conventions": "^1.41.1",
     "browser-sync": "^3.0.2",
     "gulp": "^5.0.0",
     "gulp-autoprefixer": "^9.0.0",
@@ -24,6 +31,7 @@
     "sass": "^1.77.8"
   },
   "devDependencies": {
+    "esbuild": "^0.28.0",
     "gulp-file-include": "^2.3.0",
     "through2": "^4.0.2"
   }
