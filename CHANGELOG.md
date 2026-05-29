@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/bcit-tlu/conversion-guide/compare/v1.1.8...v1.2.0) (2026-05-29)
+
+
+### Features
+
+* replace plausible analytics with opentelemetry browser instrumentation ([#20](https://github.com/bcit-tlu/conversion-guide/issues/20)) ([f2d7ab1](https://github.com/bcit-tlu/conversion-guide/commit/f2d7ab15fde9fb84fc606a14d7befe8c33ab7260))
+
 ## [1.1.8](https://github.com/bcit-tlu/conversion-guide/compare/v1.1.7...v1.1.8) (2026-05-15)
 
 
