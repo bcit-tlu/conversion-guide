@@ -67,22 +67,6 @@
 	});
 
 
-	// Scrolling event handler
-	$(window).on("scrollTo", function (e, id) {
-		$("html,body").stop().animate({
-			scrollTop: getOffset(id) - 50
-		}, 300);
-
-		function getOffset(id) {
-			var $target = $("[id='" + id + "']");
-			if ($target.length === 1) {
-				return $target.offset().top - 10;
-			}
-			return 0;
-		}
-	});
-
-
 	// Move menu highlighting on scroll
 	$(window).on("scroll", function () {
 		// TODO: Debounce function to reduce processing cost
@@ -260,17 +244,6 @@
 			}
 		});
 
-		// Trigger scrolling
-		$("a[href*='#']").on("click", function () {
-			var href = $(this).attr("href");
-			var pathname = href.split("#").shift();
-			var id = href.split("#").pop();
-
-			if (window.location.pathname.indexOf(pathname) !== -1) {
-				$(window).trigger("scrollTo", id);
-			}
-		});
-
 		$menu.trigger("adjust-size");
 	}
 
@@ -329,6 +302,36 @@
 			return null;
 		}
 		return decodeURIComponent(hash);
+	}
+
+	// Highlight the header (or first heading) of the section the user
+	// jumped to with a brief blue background tint.
+	function highlightSection(sectionId) {
+		if (!sectionId) {
+			return;
+		}
+		var section = document.getElementById(sectionId);
+		if (!section) {
+			return;
+		}
+		var target = section.querySelector("header") ||
+			section.querySelector("h1, h2, h3, h4, h5, h6");
+		if (!target) {
+			return;
+		}
+		target.animate(
+			[
+				{ backgroundColor: 'rgba(0, 163, 224, 0.20)' },
+				{ backgroundColor: 'transparent' }
+			],
+			{ duration: 2000, easing: 'ease-out' }
+		);
+	}
+
+	// Cross-page nav links trigger a full page load, so highlight the
+	// landed section on startup.
+	if (window.location.hash) {
+		highlightSection(decodeURIComponent(window.location.hash.slice(1)));
 	}
 
 	function getAssetInfo(href) {
@@ -404,6 +407,23 @@
 			props.content_section = section;
 		}
 		trackEvent("nav_click", props);
+
+		// Highlight the landed section on same-page jumps only.
+		var linkPath = href.split("#").shift();
+		var currentPath = window.location.pathname;
+		if (linkPath === "/") {
+			linkPath = currentPath;
+		}
+		if (section && linkPath === currentPath) {
+			highlightSection(section);
+		}
+
+		// On mobile the menu overlays the content, so close it after a
+		// nav tap to reveal the section the user just jumped to.
+		if ($(window).width() < 1100) {
+			$(".menu").trigger("close");
+			$(".menu-overlay").css({ "visibility": "hidden", "opacity": "0" });
+		}
 	});
 
 	$(document).on("click", "a[href]", function () {
@@ -418,6 +438,7 @@
 					page_type: pageType,
 					content_section: section
 				});
+				highlightSection(section);
 			}
 		}
 
