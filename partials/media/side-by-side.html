@@ -1,0 +1,38 @@
+<heading>Side-by-Side</heading>
+<blurb>A side-by-side layout arranges content into columns that sit next to each other and stack vertically on smaller screens.</blurb>
+<preview>
+	<div class="side-by-side">
+		<div>
+			<h3>Before</h3>
+			<figure class="img">
+				<img src="/assets/damaged-log.jpg" alt="Damaged log" />
+				<figcaption>Log damaged due to poor handling.</figcaption>
+			</figure>
+		</div>
+		<div>
+			<h3>After</h3>
+			<figure class="img">
+				<img src="/assets/lumber-yard.jpg" alt="Lumber yard" />
+				<figcaption>Logs sorted and stored correctly.</figcaption>
+			</figure>
+		</div>
+	</div>
+</preview>
+<notes>
+	<p>Side-by-side layouts are useful for comparisons (such as before/after), pairing an image with text, or presenting two related items together. Each item you provide becomes a column, and columns stack vertically on narrow screens and mobile devices.</p>
+	<p>To request a side-by-side layout, group the content in Word and leave instructions in a Word comment. See the <a href="/home#essential-tips">essential tips</a> section about leaving instructions for more help.</p>
+	<div class="note">
+		<h3>Sizing Images</h3>
+		<p>A side-by-side layout only controls <strong>positioning</strong> &mdash; it places your content into columns but does not resize anything. If you want images to appear the same size, you must provide images with matching dimensions. Images of different dimensions will display at different sizes within their columns.</p>
+	</div>
+	<div class="accordion">
+		<h3>Developer Notes</h3>
+		<p>Wrap the content in a container with the class <code>side-by-side</code>. Each direct child becomes a column.</p>
+		<p>Vertical alignment of the columns can be adjusted with an optional class:</p>
+		<ul>
+			<li><code>align-top</code> aligns columns to the top.</li>
+			<li><code>align-bottom</code> aligns columns to the bottom.</li>
+		</ul>
+		<p>Columns are vertically centered by default.</p>
+	</div>
+</notes>
