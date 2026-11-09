@@ -36,14 +36,14 @@
 
 - Create feature branches from `main`
 - Use pull requests for code review
-- PR titles must follow conventional commit format (enforced by `pr-title-lint.yaml`)
+- PR titles must follow conventional commit format (enforced by `pr-title-lint.yaml`, called as the `pr-title` job in `ci.yaml`)
 - Squash commits before merging
 
 ## CI/CD
 
 - CI uses shared `bcit-tlu/.github` OCI build reusable workflow
 - `helm-lint` validates Helm charts on every push and PR
-- `validate` aggregates `helm-lint` and the image build; it is the single required status check on `main` (keep the job name stable)
+- `validate` aggregates `helm-lint`, the image build and `pr-title`; it is the single required status check on `main` (keep the job name stable)
 - `release-please` manages versioning via conventional commits (`release-type: "simple"`)
 - Version is tracked in `.release-please-manifest.json` and `Chart.yaml` (`# x-release-please-version` annotations)
 - Images are published to `ghcr.io/bcit-tlu/conversion-guide/conversion-guide`

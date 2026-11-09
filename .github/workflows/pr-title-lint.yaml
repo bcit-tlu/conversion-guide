@@ -2,7 +2,9 @@ name: pr-title-lint
 
 # Enforce Conventional Commit PR titles so release-please can parse changes.
 #
-# Runs on `pull_request`, not `pull_request_target`: GitHub blocks the latter
+# Called from `ci.yaml` as the `pr-title` job so the required `validate`
+# gate fails on a bad title (`ci.yaml` reruns on title edits). The caller
+# runs on `pull_request`, not `pull_request_target`: GitHub blocks the latter
 # on public repositories by default
 # (https://gh.io/securely-using-pull_request_target), and this check needs no
 # write access or secrets: it only reads the PR, so the read-only token that
@@ -11,9 +13,7 @@ name: pr-title-lint
 # comments, which would need `pull-requests: write`.
 
 on:
-  pull_request:
-    types: [opened, edited, reopened, synchronize]
-    branches: [main]
+  workflow_call:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
